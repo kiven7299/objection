@@ -143,20 +143,18 @@ const okHttp3CertificatePinnerCheckOkHttp = (ident: string): any | undefined => 
   // Response response = client.newCall(request).execute();
   return wrapJavaPerform(() => {
     try {
-      const certificatePinner: CertificatePinner = Java.use("okhttp3.CertificatePinner");
-      send(c.blackBright(`Found okhttp3.CertificatePinner, overriding CertificatePinner.check$okhttp()`));
+      const certificatePinner = Java.use("okhttp3.CertificatePinner");
+      certificatePinner["check$okhttp"].overloads.forEach((m) => {
+          // get the argument types for this overload
+          var calleeArgTypes = m.argumentTypes.map((arg) => arg.className);
+          send(color_1.colors.blackBright(`Found okhttp3.CertificatePinner.check$okhttp(${calleeArgTypes.join(", ")}), overriding ...`));
 
-      const CertificatePinnerCheckOkHttp = certificatePinner.check$okhttp.overload("java.lang.String", "u15");
-
-      // tslint:disable-next-line:only-arrow-functions
-      CertificatePinnerCheckOkHttp.implementation = function () {
-        qsend(quiet,
-          c.blackBright(`[${ident}] `) + `Called check$okhttp ` +
-          c.green(`OkHTTP 3.x CertificatePinner.check$okhttp()`) +
-          `, not throwing an exception.`,
-        );
-      };
-
+          m.implementation = function () {
+              helpers_1.qsend(quiet, color_1.colors.blackBright(`[${ident}] `) + `Called check$okhttp ` +
+                  color_1.colors.green(`OkHTTP 3.x CertificatePinner.check$okhttp()`) +
+                  `, not throwing an exception.`);
+          }
+      });
       return CertificatePinnerCheckOkHttp;
 
     } catch (err) {
